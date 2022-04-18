@@ -1,4 +1,19 @@
-console.log("Hello World");
+const playerButtons = document.querySelectorAll('.js-player-selection button');
+
+const hands = document.querySelector('.js-hands');
+const playerHand = document.querySelector('.js-player-hand');
+const computerHand = document.querySelector('.js-computer-hand');
+
+const playerShowScore = document.querySelector('.js-player-show-score span');
+const computerShowScore = document.querySelector('.js-computer-show-score span');
+
+const roundResult = document.querySelector('.js-round-result');
+
+const resetButton = document.querySelector('.js-btn-reset');
+
+const WIN = 1;
+const LOSE = 0;
+const DRAW = null;
 
 computerPlay = () => {
     let randomNumber = (Math.floor(Math.random()*3) + 1);
@@ -12,10 +27,6 @@ computerPlay = () => {
             return 'SCISSORS';
     }
 }
-
-const WIN = 1;
-const LOSE = 0;
-const DRAW = null;
 
 playRound = (playerSelection, computerSelection) => {
     let outcome = null;
@@ -38,7 +49,7 @@ playRound = (playerSelection, computerSelection) => {
                     outcome = DRAW;
                 }
                 break;
-            default:
+            case 'SCISSORS':
                 if (playerSelection === 'ROCK') {
                     outcome = WIN;
                 } else if (playerSelection === 'PAPER') {
@@ -47,72 +58,74 @@ playRound = (playerSelection, computerSelection) => {
                     outcome = DRAW;
                 }
         }
+    return outcome;
+}
 
-        switch (outcome) {
-            case 0:
-                console.log(`You Lose! ${computerSelection} beats ${playerSelection}`);
-                break;
-            case 1:
-                console.log(`You Win! ${playerSelection} beats ${computerSelection}`);
-                break;
-            default:
-                console.log(`It's a tie!`)
-        }
+const displayHands = (playerSelection, computerSelection) => {
+    hands.removeAttribute('style');
+    playerHand.innerText = `Player: ${playerSelection}`;
+    computerHand.innerText = `Computer: ${computerSelection}`;
+}
 
-        return outcome;
+const resetScore = () => {
+    computerShowScore.innerText = 0;
+    playerShowScore.innerText = 0;
+    roundResult.setAttribute('style', 'display:none');
+    hands.setAttribute('style', 'display:none');
+    playerButtons.forEach((button) => {
+        button.blur();
+    });
+}
+
+const calculateScore = (roundOutcome) => {
+    let playerScore = parseInt(playerShowScore.innerText);
+    let computerScore = parseInt(computerShowScore.innerText);
+    roundResult.removeAttribute('style');
+    switch (roundOutcome) {
+        case LOSE:
+            computerScore += 1;
+            computerShowScore.innerText = computerScore;
+            roundResult.innerText = `You lost this round!`;
+            roundResult.classList.add('lose');
+            roundResult.classList.remove('win', 'tie');
+            break;
+        case WIN:
+            playerScore += 1;
+            playerShowScore.innerText = playerScore;
+            roundResult.innerText =`You won this round!`;
+            roundResult.classList.add('win');
+            roundResult.classList.remove('lose', 'tie');
+            break;
+        case DRAW:
+            roundResult.innerText =`It's a tie!`;
+            roundResult.classList.add('tie');
+            roundResult.classList.remove('win', 'lose');
+    }
+    if (computerScore === 5) {
+        alert('COMPUTER WINS! :(')
+        resetScore();
+    } else if (playerScore === 5) {
+        alert('PLAYER WINS! :)')
+        resetScore();
+    } else {
+        // DO NOTHING
+    }
 }
 
 game = () => {
-    let playerScore = 0;
-    let computerScore = 0;
     let playerSelection = null;
-    for (let i = 1; i <= 5; i++) {
-        console.log(`Round #${i}`)
-        let keepGoing = true;
-        while (keepGoing) {
-            playerSelection = prompt("ROCK / PAPER / SCISSORS: ");
-            if (playerSelection) {
-                playerSelection = playerSelection.toUpperCase()
-                console.log(playerSelection)
-            } else if (playerSelection === null) {
-                break;
-            } else {
-                // DO NOTHING
-            }
-            switch (playerSelection) {
-                case 'ROCK':
-                case 'PAPER':
-                case 'SCISSORS':
-                    keepGoing = false;
-                    break;
-                default:
-                    alert('Please enter input correctly.')
-                    keepGoing = true;
-            }
-        }
-        let computerSelection = computerPlay();
-        let roundOutcome = playRound(playerSelection, computerSelection);
-        switch (roundOutcome) {
-            case 0:
-                computerScore += 1;
-                break;
-            case 1:
-                playerScore += 1;
-                break;
-            default:
-                // DO NOTHING
-        }
-        console.log(`Player: ${playerScore}`);
-        console.log(`Computer: ${computerScore}`);
-    }
-
-    if (playerScore === computerScore) {
-        console.log(`IT'S A DRAW!`)
-    } else if (playerScore > computerScore) {
-        console.log('PLAYER WINS! :)')
-    } else {
-        console.log('COMPUTER WINS! :(')
-    }
+    let computerSelection = null;
+    let roundOutcome = null;
+    playerButtons.forEach((button) => { 
+        button.addEventListener('click', (e) => {
+            playerSelection = e.target.value.toUpperCase();
+            computerSelection = computerPlay();
+            roundOutcome = playRound(playerSelection, computerSelection);
+            displayHands(playerSelection, computerSelection);
+            calculateScore(roundOutcome);
+        });
+    });
+    resetButton.addEventListener('click', resetScore);
 }
 
 game();
