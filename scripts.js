@@ -14,6 +14,7 @@ const resetButton = document.querySelector('.js-btn-reset');
 const WIN = 1;
 const LOSE = 0;
 const DRAW = null;
+const POINT_LIMIT = 5;
 
 computerPlay = () => {
     let randomNumber = (Math.floor(Math.random()*3) + 1);
@@ -101,11 +102,11 @@ const calculateScore = (roundOutcome) => {
             roundResult.classList.add('tie');
             roundResult.classList.remove('win', 'lose');
     }
-    if (computerScore === 5) {
-        alert('COMPUTER WINS! :(')
+    if (computerScore === POINT_LIMIT) {
+        alert(`Computer has reached ${POINT_LIMIT}pts! COMPUTER WINS! :(`);
         resetScore();
-    } else if (playerScore === 5) {
-        alert('PLAYER WINS! :)')
+    } else if (playerScore === POINT_LIMIT) {
+        alert(`Player has reached ${POINT_LIMIT}pts! PLAYER WINS! :)`);
         resetScore();
     } else {
         // DO NOTHING
